@@ -36,6 +36,7 @@ class Main(object):
         #       sound_enabled[9], sound_sensitivity[10], sound_trigger_interval[11],
         #       check_interval[12], duration[13], location[14], scaling[15], trigger_interval[16], set_motion_settings[17]    
 
+        atLeastOneCameraPreviewEnabled = False
         if atLeastOneCamera:
             for c in cameras:
                 if c[5]:
