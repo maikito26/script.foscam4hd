@@ -18,8 +18,8 @@ INVALID_USER_CHARS = ('@',)
 #Get settings.xml data    
 def getSettings(): 
     activeCameras = []
-	motion_enabled = False
-	sound_enabled = False
+    motion_enabled = False
+    sound_enabled = False
 	
     for camera_number in '1234':
         log_verbose("Getting settings for Camera " + camera_number)
