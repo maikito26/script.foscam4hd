@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>
+  <string id="32000">Foscam 4HD</string>
+
+  <string id="32001">Camera 1</string>
+  <string id="32002">Enable</string>
+  <string id="32003">Host</string>
+  <string id="32004">Port</string>
+  <string id="32005">Username</string>
+  <string id="32006">Password</string>
+  <string id="32007">Enable Camera Preview</string>
+  <string id="32008">Alarm Trigger</string>
+  <string id="32009">Motion and Sound</string>
+  <string id="32010">Motion Only</string>
+  <string id="32011">Sound Only</string>
+  <string id="32012">Alarm Check Interval (seconds)</string>
+  <string id="32013">Preview Duration (seconds)</string>
+  <string id="32014">Preview Position</string>
+  <string id="32015">Bottom Right</string>
+  <string id="32016">Bottom Left</string>
+  <string id="32017">Top Left</string>
+  <string id="32018">Top Right</string>  
+  <string id="32019">Advanced - Override Camera Settings</string>
+  <string id="32020">Motion Sensitivity</string>
+  <string id="32021">Low</string>
+  <string id="32022">Medium</string>
+  <string id="32023">High</string>
+  <string id="32024">Lower</string>
+  <string id="32025">Lowest</string>
+  <string id="32026">Motion Trigger Interval (seconds)</string>
+  <string id="32027">Sound Sensitivity</string>
+  <string id="32028">Sound Trigger Interval (seconds)</string>
+  <string id="32029">Preview Scale Factor</string>
+  
+  <string id="32030">Camera 2</string>
+  <string id="32031">Camera 3</string>
+  <string id="32032">Camera 4</string>
+  
+  <string id="32051">Logging</string>
+  <string id="32052">Log Level</string>
+  <string id="32053">Off</string>
+  <string id="32054">Normal</string>
+  <string id="32055">Verbose</string>
+  
+</strings>
+
+
