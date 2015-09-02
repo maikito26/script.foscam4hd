@@ -21,8 +21,11 @@ class CameraXMLResponse(object):
 
     def __init__(self, response):
         self._xml = response.text
-        self._xml_root = ET.fromstring(self._xml)
-
+        try:
+            self._xml_root = ET.fromstring(self._xml)
+        except:
+            pass
+        
         result = self._xml_root.find('result')
         self._result_value = int(result.text)
         self._xml_root.remove(result)

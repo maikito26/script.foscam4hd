@@ -6,6 +6,7 @@ import xbmcaddon
 import common
 import requests
 import xbmcvfs
+import time
 from urllib import urlretrieve
 from threading import Thread
 
@@ -98,6 +99,8 @@ class CamWindow(xbmcgui.WindowDialog):
                 x+=1
                 filename = os.path.join(path, '%d.%d.jpg') %(int(camera_number), x)
                 urlretrieve(snapShotURL, filename)
+                img1[0].setColorDiffuse('0xFFFFFFFF')
+                img2[0].setColorDiffuse('0xFFFFFFFF')
                 img1[0].setImage(filename, useCache=False)                
                 xbmcvfs.delete(os.path.join(path, '%d.%d.jpg') %(int(camera_number), x-1))
                 img2[0].setImage(filename, useCache=False)               
