@@ -14,57 +14,78 @@ from resources.lib import gui
 __addon__   = xbmcaddon.Addon()
 __id__ = __addon__.getAddonInfo('id')
 
-# Service
-class Main(object):
+g_reset = False
+    
+class  Main:
     def __init__(self):
         common.log("Service is starting...") 
-        path = xbmc.translatePath('special://profile/addon_data/%s' %__id__ ) 
+        self.path = xbmc.translatePath('special://profile/addon_data/%s' %__id__ ) 
        
         #Checks if directory exists for file storage, if not it creates it
-        if not xbmcvfs.exists(path):
+        if not xbmcvfs.exists(self.path):
             try:
-                xbmcvfs.mkdir(path)
+                xbmcvfs.mkdir(self.path)
             except:
                 pass
+            
+        self._reset = False
+        self.monitor = MyMonitor(action=self.restart)
+        self.start()
+            
 
+    def restart(self):
+        common.log_verbose("A setting change has been detected!")
+        self._reset = True
+        common.log_normal("Applying changed settings in 10 seconds")
+        self.monitor.waitForAbort(10)
+        self._reset = False
+        self.start()
+   
+    def start(self):       
         #Collects camera configurations and confirm you can connect to at least 1   
         atLeastOneCamera, cameras = common.getSettings()
-
+        common.log_verbose("Number of Cameras to start: " + str(len(cameras)))
         #cameras =
-        #       camera_number[0], host[1], port[2], username[3], password[4], preview_enable[5]
+        #       camera_number[0], host[1], port[2], username[3], password[4], preview_enabled[5]
         #       motion_enabled[6], motion_sensitivity[7], motion_trigger_interval[8],
         #       sound_enabled[9], sound_sensitivity[10], sound_trigger_interval[11],
         #       check_interval[12], duration[13], location[14], scaling[15], trigger_interval[16], set_motion_settings[17]    
 
-        atLeastOneCameraPreviewEnabled = False
         if atLeastOneCamera:
-            for c in cameras:
-                if c[5]:
+            for camera in cameras:
+                preview_enabled = camera[5]
+                if preview_enabled:
                     atLeastOneCameraPreviewEnabled = True
                     break
                 else:
-                    camera_number = c[0]
+                    camera_number = camera[0]
                     common.log_verbose("Preview disabled for Camera " + camera_number)
                       
         if atLeastOneCameraPreviewEnabled:
-            for c in cameras:
-                camera_number = c[0]
-                common.log_verbose(c)
-
-                if c[17]:
-                    configureAlarmSettings(c)
-                else:
-                    resetCameraAlarmSettings(c)
+            for camera in cameras:
+                camera_number = camera[0]
+                preview_enabled = camera[5]
+                set_motion_settings = camera[17]
+                common.log_verbose(camera)
                 
-                t = Thread(target=self.checkAlarm, args=(c, path))
-                t.start()
-                common.log_verbose("Thread Started: Camera " + camera_number)
+                if set_motion_settings:
+                    self.configureAlarmSettings(camera)
+                else:
+                    self.resetCameraAlarmSettings(camera)
+
+                if preview_enabled:
+                    t = Thread(target=self.checkAlarm, args=(camera, self.path))
+                    t.start()
+                    common.log_verbose("Thread Started: Camera " + camera_number)
                 
             common.log_normal("Cameras started")
 
-        while not xbmc.abortRequested:               
-            xbmc.sleep(1000)   
-                
+        #Loop required to detect settings changes    
+        while not self.monitor.abortRequested():
+            self.monitor.waitForAbort(10)  
+
+          
+
                 
     #Camera Thread
     def checkAlarm(self, camera_settings, path):
@@ -80,7 +101,9 @@ class Main(object):
         #Send request to camera and receive response
         with foscam.Camera (camera_settings) as camera:
             snapshot_url = camera.snapshot_url
-            while not xbmc.abortRequested:
+            preview = gui.CamWindow(camera_settings, path, snapshot_url)
+            
+            while not self.monitor.abortRequested() and not self._reset:
                 alarmActive = False
                 alarmState = camera.get_device_state()
                 
@@ -89,10 +112,10 @@ class Main(object):
                     for alarm, enabled in (('motionDetect', motion_enabled), ('sound', sound_enabled)):
                         if enabled:
                             param = "{0}Alarm".format(alarm)
-                            common.log_verbose("{0:s} = {1:d}".format(param, alarmState[param]))
+                            #common.log_verbose("{0:s} = {1:d}".format(param, alarmState[param]))
                             if alarmState[param] == 2:
                                 alarmActive = True
-                                common.log_normal("Alarm detected on Camera " + camera_number)
+                                common.log_verbose("Alarm detected on Camera " + camera_number)
                                 break                        
 
             
@@ -101,87 +124,94 @@ class Main(object):
 
                     if not windowOpen:
                         common.log_normal("Opening preview window for camera " + camera_number)
-                        preview = gui.CamWindow(camera_settings, path, snapshot_url)
                         windowOpen = True
+                        preview.start()
 
                 else:
                     if windowOpen: #Alarm not active but window still open
-                        common.log_verbose("Camera {0} window closing in {1} seconds.  Actual time is {2}".format(camera_number, 1-(time.time() - durationTime), time.time()))
+                        common.log_verbose("Camera {0} window closing in {1} seconds.".format(camera_number, 1 - (time.time() - durationTime)))
                         if durationTime < time.time():
-                            preview.stop()
-                            preview = None
-                            del(preview)
                             windowOpen = False
-    
+                            preview.stop()
+                            common.log_verbose("Camera {0} window closed.  No alarm detected while window was still open.".format(camera_number))
                         
                 #Wait for next loop logic      
                 if alarmActive:
-                    sleep = int(trigger_interval)
+                    sleep = int(trigger_interval - 1)
                 else:
                     sleep = int(check_interval)
                 common.log_verbose("Camera {0} will sleep for {1} seconds".format(camera_number, sleep))
-
-                for j in xrange(sleep):
-                    if not xbmc.abortRequested:
-                        xbmc.sleep(1000)
+                self.monitor.waitForAbort(sleep)
+               
     #--    
-        
-
-#Configure Motion Settings
-def configureAlarmSettings(camera_settings):
-     with foscam.Camera(camera_settings) as camera:
-        # Applies new settings to camera
-
-        camera_number = camera_settings[0]
-        motion_enabled = camera_settings[6]
-        sound_enabled = camera_settings[9]
-        
-        command = camera.set_motion_detect_config()
-        if motion_enabled:
-            command['isEnable'] = 1
-            command['sensitivity'] = common.get_setting('motion_sensitivity' + camera_number)
-            command['triggerInterval'] = common.get_setting('motion_trigger_interval' + camera_number)                                             
-            send_command(command)
             
-        command = camera.set_sound_detect_config()
-        if sound_enabled:
-            command['isEnable'] = 1
-            command['sensitivity'] = common.get_setting('sound_sensitivity' + camera_number)
-            command['triggerInterval'] = common.get_setting('sound_trigger_interval' + camera_number)
-            for iday in range(7):
-                command['schedule{0:d}'.format(iday)] = 2**48 - 1
-            send_command(command)
 
+    #Configure Motion Settings
+    def configureAlarmSettings(self, camera_settings):
+         with foscam.Camera(camera_settings) as camera:
+            # Applies new settings to camera
 
-def resetCameraAlarmSettings(camera_settings):
-     with foscam.Camera(camera_settings) as camera:
-        # Sets setting.xml settings based on camera settings
-
-        camera_number = camera_settings[0]
-        motion_enabled = camera_settings[6]
-        sound_enabled = camera_settings[9]
-        
-        common.log_verbose('Resetting Camera Motion Config to settings.xml')
-        response = camera.get_motion_detect_config()
-        common.log_verbose(response)
-        common.set_setting('motion_sensitivity' + camera_number, str(response['sensitivity']))
-        common.set_setting('motion_trigger_interval' + camera_number, str(response['triggerInterval']))
+            camera_number = camera_settings[0]
+            motion_enabled = camera_settings[6]
+            sound_enabled = camera_settings[9]
             
-        common.log_verbose('Resetting Camera Sound Config to settings.xml')
-        response = camera.get_sound_detect_config()
-        common.log_verbose(response)
-        common.set_setting('sound_sensitivity' + camera_number, str(response['sensitivity']))
-        common.set_setting('sound_trigger_interval' + camera_number, str(response['triggerInterval']))
+            command = camera.set_motion_detect_config()
+            common.log_verbose(command)
+            if motion_enabled:
+                command['isEnable'] = 1
+                command['sensitivity'] = common.get_setting('motion_sensitivity' + camera_number)
+                command['triggerInterval'] = common.get_setting('motion_trigger_interval' + camera_number)                                             
+                self.send_command(command)
+                common.log_verbose(command)
+                
+            command = camera.set_sound_detect_config()
+            common.log_verbose(command)
+            if sound_enabled:
+                command['isEnable'] = 1
+                command['sensitivity'] = common.get_setting('sound_sensitivity' + camera_number)
+                command['triggerInterval'] = common.get_setting('sound_trigger_interval' + camera_number)
+                #for iday in range(7):
+                #    command['schedule{0:d}'.format(iday)] = 2**48 - 1
+                self.send_command(command)
+                common.log_verbose(command)
 
-def send_command(command):
-    response = command.send()
-    if not response:
-        msg = u"{0}: {1}".format(common.get_string(32104), response.message)
-        common.notify(msg)  
-#--
-        
 
+    def resetCameraAlarmSettings(self, camera_settings):
+         with foscam.Camera(camera_settings) as camera:
+            # Sets setting.xml settings based on camera settings
+
+            camera_number = camera_settings[0]
+            motion_enabled = camera_settings[6]
+            sound_enabled = camera_settings[9]
             
-if __name__ == "__main__":
+            common.log_verbose('Resetting Camera Motion Config to settings.xml')
+            response = camera.get_motion_detect_config()
+            common.log_verbose(response)
+            common.set_setting('motion_sensitivity' + camera_number, str(response['sensitivity']))
+            common.set_setting('motion_trigger_interval' + camera_number, str(response['triggerInterval']))
+                
+            common.log_verbose('Resetting Camera Sound Config to settings.xml')
+            response = camera.get_sound_detect_config()
+            common.log_verbose(response)
+            common.set_setting('sound_sensitivity' + camera_number, str(response['sensitivity']))
+            common.set_setting('sound_trigger_interval' + camera_number, str(response['triggerInterval']))
+
+    def send_command(self, command):
+        response = command.send()
+        if not response:
+            msg = u"{0}: {1}".format(common.get_string(32104), response.message)
+            common.notify(msg)  
+    #--
+        
+class MyMonitor(xbmc.Monitor):
+    def __init__(self, action):
+        xbmc.Monitor.__init__(self)
+        self.action = action
+        
+    def onSettingsChanged(self):
+        self.action()
+        
+# Service Start        
+if __name__ == '__main__':
     Main()
 

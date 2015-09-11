@@ -32,10 +32,10 @@
 		
 		<setting type="sep"/>
 		<setting label="32007" type="bool" id="preview_enabled2" default="false" enable="eq(-6,true)"/>
-			<setting label="32008" type="labelenum" id="alarm_trigger2" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-8,true)" visible="eq(-1,true)+eq(-8,true)"/>
-			<setting label="32012" type="slider" id="check_interval2" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-9,true)" visible="eq(-2,true)+eq(-9,true)"/>
-			<setting label="32013" type="slider" id="duration2" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-10,true)" visible="eq(-3,true)+eq(-10,true)"/>
-			<setting label="32014" type="labelenum" id="location2" lvalues="32016|32017|32018|32015" enable="eq(-4,true)+eq(-11,true)" visible="eq(-4,true)+eq(-11,true)"/>
+			<setting label="32008" type="labelenum" id="alarm_trigger2" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-7,true)" visible="eq(-1,true)+eq(-7,true)"/>
+			<setting label="32012" type="slider" id="check_interval2" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-8,true)" visible="eq(-2,true)+eq(-8,true)"/>
+			<setting label="32013" type="slider" id="duration2" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-9,true)" visible="eq(-3,true)+eq(-9,true)"/>
+			<setting label="32014" type="labelenum" id="location2" lvalues="32016|32017|32018|32015" enable="eq(-4,true)+eq(-10,true)" visible="eq(-4,true)+eq(-10,true)"/>
 			
 			<setting type="sep" enable="eq(-5,true)+eq(-12,true)" visible="eq(-5,true)+eq(-12,true)"/>
 			<setting label="32019" type="bool" id="advanced2" default="false" enable="eq(-6,true)+eq(-12,true)" visible="eq(-6,true)+eq(-12,true)"/>
@@ -54,11 +54,11 @@
         <setting label="32006" type="text" id="password3" option="hidden" enable="eq(-4,true)"/>
 		
 		<setting type="sep"/>
-		<setting label="32007" type="bool" id="preview_enabled1" default="false" enable="eq(-6,true)"/>
-			<setting label="32008" type="labelenum" id="alarm_trigger3" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-8,true)" visible="eq(-1,true)+eq(-8,true)"/>
-			<setting label="32012" type="slider" id="check_interval3" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-9,true)" visible="eq(-2,true)+eq(-9,true)"/>
-			<setting label="32013" type="slider" id="duration3" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-10,true)" visible="eq(-3,true)+eq(-10,true)"/>
-			<setting label="32014" type="labelenum" id="location3" lvalues="32017|32018|32015|32016" enable="eq(-4,true)+eq(-11,true)" visible="eq(-4,true)+eq(-11,true)"/>
+		<setting label="32007" type="bool" id="preview_enabled3" default="false" enable="eq(-6,true)"/>
+			<setting label="32008" type="labelenum" id="alarm_trigger3" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-7,true)" visible="eq(-1,true)+eq(-7,true)"/>
+			<setting label="32012" type="slider" id="check_interval3" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-8,true)" visible="eq(-2,true)+eq(-8,true)"/>
+			<setting label="32013" type="slider" id="duration3" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-9,true)" visible="eq(-3,true)+eq(-9,true)"/>
+			<setting label="32014" type="labelenum" id="location3" lvalues="32017|32018|32015|32016" enable="eq(-4,true)+eq(-10,true)" visible="eq(-4,true)+eq(-10,true)"/>
 			
 			<setting type="sep" enable="eq(-5,true)+eq(-12,true)" visible="eq(-5,true)+eq(-12,true)"/>
 			<setting label="32019" type="bool" id="advanced3" default="false" enable="eq(-6,true)+eq(-12,true)" visible="eq(-6,true)+eq(-12,true)"/>
@@ -78,10 +78,10 @@
 		
 		<setting type="sep"/>
 		<setting label="32007" type="bool" id="preview_enabled4" default="false" enable="eq(-6,true)"/>
-			<setting label="32008" type="labelenum" id="alarm_trigger4" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-8,true)" visible="eq(-1,true)+eq(-8,true)"/>
-			<setting label="32012" type="slider" id="check_interval4" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-9,true)" visible="eq(-2,true)+eq(-9,true)"/>
-			<setting label="32013" type="slider" id="duration4" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-10,true)" visible="eq(-3,true)+eq(-10,true)"/>
-			<setting label="32014" type="labelenum" id="location4" lvalues="32018|32015|32016|32017" enable="eq(-4,true)+eq(-11,true)" visible="eq(-4,true)+eq(-11,true)"/>
+			<setting label="32008" type="labelenum" id="alarm_trigger4" lvalues="32009|32010|32011" default="1" enable="eq(-1,true)+eq(-7,true)" visible="eq(-1,true)+eq(-7,true)"/>
+			<setting label="32012" type="slider" id="check_interval4" default="5" range="1,1,10" option="int" enable="eq(-2,true)+eq(-8,true)" visible="eq(-2,true)+eq(-8,true)"/>
+			<setting label="32013" type="slider" id="duration4" default="10" range="1,1,30" option="int" enable="eq(-3,true)+eq(-9,true)" visible="eq(-3,true)+eq(-9,true)"/>
+			<setting label="32014" type="labelenum" id="location4" lvalues="32018|32015|32016|32017" enable="eq(-4,true)+eq(-10,true)" visible="eq(-4,true)+eq(-10,true)"/>
 			
 			<setting type="sep" enable="eq(-5,true)+eq(-12,true)" visible="eq(-5,true)+eq(-12,true)"/>
 			<setting label="32019" type="bool" id="advanced4" default="false" enable="eq(-6,true)+eq(-12,true)" visible="eq(-6,true)+eq(-12,true)"/>

@@ -6,7 +6,6 @@ import xbmcaddon
 import common
 import requests
 import xbmcvfs
-import time
 from urllib import urlretrieve
 from threading import Thread
 
@@ -35,17 +34,15 @@ class Button(xbmcgui.ControlButton):
         return self
 
 class CamWindow(xbmcgui.WindowDialog):
-    def __init__(self, camera_settings, path, snapShotURL):
-        
-        camera_number = camera_settings[0]
+    def __init__(self, camera_settings, path, snapShotURL):        
+        self.camera_number = camera_settings[0]
         scaling = camera_settings[15]
         position = camera_settings[14]
+        self.path = path
+        self.snapShotURL = snapShotURL
         self.setProperty('zorder', "99")
-
         self.buttons = []
-
-        common.log_normal("Showing preview for Camera " + camera_number)
-        
+      
         WIDTH = 320
         HEIGHT = 180
 
@@ -67,17 +64,17 @@ class CamWindow(xbmcgui.WindowDialog):
         animations = [('WindowOpen', "effect=slide start={0:d} time=2000 tween=cubic easing=out".format(start)),
                       ('WindowClose', "effect=slide end={0:d} time=2000 tween=cubic easing=in".format(start))]
         
-        img1 = []
+        self.img1 = []
         img = xbmcgui.ControlImage(x, y, width, height, '')
         self.addControl(img)
         img.setAnimations(animations)
-        img1.append(img)
+        self.img1.append(img)
 
-        img2 = []
+        self.img2 = []
         img = xbmcgui.ControlImage(x, y, width, height, '')
         self.addControl(img)
         img.setAnimations(animations)
-        img2.append(img)
+        self.img2.append(img)
 
         button_scaling = 0.5 * scaling
         button_width = int(round(Button.WIDTH * button_scaling))
@@ -85,48 +82,53 @@ class CamWindow(xbmcgui.WindowDialog):
         self.addControl(self.close_button)
         self.close_button.setAnimations(animations)
 
+        common.log_verbose("Window Created for Camera " + self.camera_number)
+
+    def start(self):
         self.isRunning = True
         self.show()
-
-        t = Thread(target=self.getImages, args=(camera_number, snapShotURL, img1, img2, path))
+        t = Thread(target=self.getImages, args=())
         t.start()
+        common.log_verbose("Thread Started to get Images for Camera " + self.camera_number)
         
 
-    def getImages(self, camera_number, snapShotURL, img1, img2, path):
+    def getImages(self):
+        monitor = xbmc.Monitor()
         x=0
-        while (not xbmc.abortRequested) and (self.isRunning):
+        while (not monitor.abortRequested()) and (self.isRunning):
             try:
                 x+=1
-                filename = os.path.join(path, '%d.%d.jpg') %(int(camera_number), x)
-                urlretrieve(snapShotURL, filename)
-                img1[0].setColorDiffuse('0xFFFFFFFF')
-                img2[0].setColorDiffuse('0xFFFFFFFF')
-                img1[0].setImage(filename, useCache=False)                
-                xbmcvfs.delete(os.path.join(path, '%d.%d.jpg') %(int(camera_number), x-1))
-                img2[0].setImage(filename, useCache=False)               
+                filename = os.path.join(self.path, '%d.%d.jpg') %(int(self.camera_number), x)
+                #common.log_verbose(filename)
+                urlretrieve(self.snapShotURL, filename)
+                self.img1[0].setImage(filename, useCache=False)
+                self.img1[0].setColorDiffuse('0xFFFFFFFF')
+                self.img2[0].setColorDiffuse('0xFFFFFFFF')
+                xbmcvfs.delete(os.path.join(self.path, '%d.%d.jpg') %(int(self.camera_number), x-1))
+                self.img2[0].setImage(filename, useCache=False)               
             except Exception, e:
                 common.log(str(e))
-                error = xbmc.translatePath('special://home/addons/%s/resources/media/error.png', __id__ )
-                c[2].setImage(error, useCache=False)
+                error = xbmc.translatePath('special://home/addons/%s/resources/media/error.png') %(__id__)
+                self.img1[0].setImage(error, useCache=False)
+                
+        common.log_verbose("Thread Ended for Image Getting of Camera " + self.camera_number)
     
 
     def onControl(self, control):
         if control == self.close_button:
+            common.log_verbose("Close Button pressed for Camera " + self.camera_number)
             self.stop()
             
     def onAction(self, action):
         if action in (ACTION_PREVIOUS_MENU, ACTION_BACKSPACE, ACTION_NAV_BACK):
+            common.log_verbose("Close Action pressed for Camera " + self.camera_number)
             self.stop()
 
     def stop(self):
-        common.log_normal("Closing preview")
-        try:
-            self.removeControl(self.close_button)
-        except:
-            common.log_error("Unable to remove control close_button")
+        common.log_normal("Closing preview of Camera " + self.camera_number)
         self.isRunning = False
         self.close()
-        return None
+
         
             
     

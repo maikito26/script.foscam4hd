@@ -18,19 +18,26 @@ INVALID_USER_CHARS = ('@',)
 #Get settings.xml data    
 def getSettings(): 
     activeCameras = []
-    motion_enabled = False
-    sound_enabled = False
-	
     for camera_number in '1234':
         log_verbose("Getting settings for Camera " + camera_number)
-        if bool(get_setting('camera' + camera_number)):
+        
+        camera_enabled = False
+        if 'true' in get_setting('camera' + camera_number):
+            camera_enabled = True
 
+
+        if camera_enabled:
             host = get_setting('host' + camera_number)
             port = get_setting('port' + camera_number)
             username = get_setting('username' + camera_number)
             password = get_setting('password' + camera_number)
-            preview_enabled = get_setting('preview_enabled' + camera_number)
+        
+            preview_enabled  = False
+            if 'true' in get_setting('preview_enabled' + camera_number):
+                preview_enabled = True
 
+            motion_enabled = False
+            sound_enabled = False
             alarm_trigger = get_setting('alarm_trigger' + camera_number).lower()
             if 'motion' in alarm_trigger:
                 motion_enabled = True
@@ -54,7 +61,9 @@ def getSettings():
             elif sound_enabled:
                 trigger_interval = sound_trigger_interval
 
-            advanced_alarm_settings = bool(get_setting('advanced' + camera_number))
+            advanced_alarm_settings = False
+            if 'true' in get_setting('advanced' + camera_number):
+                advanced_alarm_settings = True
             
             configuredCorrectly = checkSettings(camera_number, host, port, username, password)
             if configuredCorrectly:                    
@@ -108,9 +117,6 @@ def get_setting(ident):
 
 def set_setting(ident, value):
     __addon__.setSetting(ident, value)
-
-def get_bool_setting(ident):
-    return get_setting(ident) == "true"
 
 def open_settings(callback=None):
     if callback is not None:
